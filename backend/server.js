@@ -8,7 +8,14 @@ connectDB();
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    process.env.FRONTEND_URL
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Routes
@@ -17,6 +24,7 @@ app.use('/api/subjects', require('./routes/subjects'));
 app.use('/api/topics', require('./routes/topics'));
 app.use('/api/reminders', require('./routes/reminders'));
 app.use('/api/profile', require('./routes/profile'));
+
 app.get('/', (req, res) => res.json({ message: 'Placement Prep API running' }));
 
 const PORT = process.env.PORT || 5000;
