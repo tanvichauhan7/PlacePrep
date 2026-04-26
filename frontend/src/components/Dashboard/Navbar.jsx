@@ -1,8 +1,15 @@
+import { useEffect, useState } from 'react';
 import useAuthStore from '../../context/authStore';
 
 export default function Navbar({ activeTab, setActiveTab }) {
   const { user, logout } = useAuthStore();
-  const tabs = ['Subjects', 'Reminders', 'Overview'];
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark');
+  const tabs = ['Subjects', 'Reminders', 'Overview', 'Profile'];
+
+  useEffect(() => {
+    document.body.classList.toggle('dark', dark);
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }, [dark]);
 
   return (
     <nav style={styles.nav}>
@@ -25,6 +32,13 @@ export default function Navbar({ activeTab, setActiveTab }) {
         </div>
 
         <div style={styles.user}>
+          <button
+            onClick={() => setDark(d => !d)}
+            style={styles.themeBtn}
+            title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {dark ? '☀️' : '🌙'}
+          </button>
           <span style={styles.userName}>{user?.name?.split(' ')[0]}</span>
           <button onClick={logout} className="btn btn-secondary btn-sm">Logout</button>
         </div>
@@ -43,4 +57,5 @@ const styles = {
   tabActive: { background: 'var(--accent-light)', color: 'var(--accent)' },
   user: { display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' },
   userName: { fontSize: 13, color: 'var(--muted)', fontWeight: 500 },
+  themeBtn: { background: 'none', border: '1px solid var(--border)', borderRadius: 6, padding: '4px 8px', fontSize: 15, cursor: 'pointer', lineHeight: 1 },
 };

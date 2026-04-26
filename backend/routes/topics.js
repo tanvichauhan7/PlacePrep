@@ -3,6 +3,7 @@ const router = express.Router();
 const Topic = require('../models/Topic');
 const { protect } = require('../middleware/authMiddleware');
 
+
 // GET /api/topics/:subjectId — get all topics for a subject
 router.get('/:subjectId', protect, async (req, res) => {
   try {
@@ -32,6 +33,7 @@ router.patch('/:id/toggle', protect, async (req, res) => {
     if (!topic) return res.status(404).json({ message: 'Topic not found' });
     topic.isCompleted = !topic.isCompleted;
     topic.completedAt = topic.isCompleted ? new Date() : null;
+    
     await topic.save();
     res.json(topic);
   } catch (err) {
@@ -45,6 +47,18 @@ router.delete('/:id', protect, async (req, res) => {
     const topic = await Topic.findOneAndDelete({ _id: req.params.id, user: req.user._id });
     if (!topic) return res.status(404).json({ message: 'Topic not found' });
     res.json({ message: 'Topic deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.patch('/:id/notes', protect, async (req, res) => {
+  try {
+    const topic = await Topic.findOne({ _id: req.params.id, user: req.user._id });
+    if (!topic) return res.status(404).json({ message: 'Topic not found' });
+    topic.notes = req.body.notes || '';
+    await topic.save();
+    res.json(topic);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -41,6 +41,32 @@ const useAuthStore = create((set) => ({
     set({ user: null, token: null });
   },
 
+  updateProfile: async (fields) => {
+    try {
+      const { data } = await api.patch('/profile', fields);
+      const updated = { ...data };
+      localStorage.setItem('user', JSON.stringify({ _id: updated._id, name: updated.name, email: updated.email }));
+      set({ user: updated });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  },
+
+  fetchProfile: async () => {
+    try {
+      const { data } = await api.get('/profile');
+      set({ user: data });
+    } catch (err) {}
+  },
+
+  bumpStreak: async () => {
+    try {
+      const { data } = await api.post('/profile/streak');
+      set(state => ({ user: { ...state.user, streak: data.streak, lastStudiedDate: data.lastStudiedDate } }));
+    } catch (err) {}
+  },
+
   clearError: () => set({ error: null }),
 }));
 

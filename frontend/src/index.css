@@ -17,6 +17,20 @@
   --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
+body.dark {
+  --bg: #141413;
+  --surface: #1f1f1d;
+  --border: #2e2e2b;
+  --text: #f0efe9;
+  --muted: #8a8a84;
+  --accent: #5b8fd4;
+  --accent-light: #1a2a40;
+  --success: #2dbe8e;
+  --success-light: #0d2e22;
+  --warning: #d4901f;
+  --warning-light: #2e1f06;
+}
+
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--bg);
@@ -24,7 +38,11 @@ body {
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.2s ease, color 0.2s ease;
 }
+
+body.dark .btn-danger { background: #3b1212; color: #f87171; }
+body.dark .btn-danger:hover { background: #4f1a1a; }
 
 button { cursor: pointer; font-family: inherit; }
 input, select, textarea { font-family: inherit; }
@@ -44,12 +62,12 @@ a { text-decoration: none; color: inherit; }
 .btn-danger:hover { background: #fecaca; }
 .btn-sm { padding: 5px 10px; font-size: 13px; }
 
-input[type="text"], input[type="email"], input[type="password"], select {
+input[type="text"], input[type="email"], input[type="password"], input[type="date"], select, textarea {
   width: 100%; padding: 9px 12px; border: 1px solid var(--border);
   border-radius: var(--radius-sm); font-size: 14px; background: var(--surface);
   color: var(--text); outline: none; transition: border 0.15s;
 }
-input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(50,102,173,0.12); }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(50,102,173,0.12); }
 
 .card {
   background: var(--surface); border: 1px solid var(--border);

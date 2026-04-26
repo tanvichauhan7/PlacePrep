@@ -16,7 +16,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/subjects', require('./routes/subjects'));
 app.use('/api/topics', require('./routes/topics'));
 app.use('/api/reminders', require('./routes/reminders'));
-
+app.use('/api/profile', require('./routes/profile'));
 app.get('/', (req, res) => res.json({ message: 'Placement Prep API running' }));
 
 const PORT = process.env.PORT || 5000;
