@@ -22,7 +22,7 @@ export default function Login() {
     <div style={styles.page}>
       <div style={styles.card}>
         <div style={styles.logo}>🎯</div>
-        <h1 style={styles.title}>Placement Prep</h1>
+        <h1 style={styles.title}>PlacePrep</h1>
         <p style={styles.sub}>Sign in to your dashboard</p>
 
         {error && <div style={styles.error}>{error}</div>}

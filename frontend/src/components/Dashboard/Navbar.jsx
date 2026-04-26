@@ -9,7 +9,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
       <div style={styles.inner}>
         <div style={styles.brand}>
           <span style={{ fontSize: 20 }}>🎯</span>
-          <span style={styles.brandText}>Placement Prep</span>
+          <span style={styles.brandText}>PlacePrep</span>
         </div>
 
         <div style={styles.tabs}>

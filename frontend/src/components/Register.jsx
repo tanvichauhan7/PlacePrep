@@ -23,7 +23,7 @@ export default function Register() {
       <div style={styles.card}>
         <div style={styles.logo}>🎯</div>
         <h1 style={styles.title}>Get started</h1>
-        <p style={styles.sub}>Create your placement prep account</p>
+        <p style={styles.sub}>Create your PlacePrep account</p>
 
         {error && <div style={styles.error}>{error}</div>}
 
