@@ -4,7 +4,8 @@ import useAuthStore from '../../context/authStore';
 export default function Navbar({ activeTab, setActiveTab }) {
   const { user, logout } = useAuthStore();
   const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark');
-  const tabs = ['Subjects', 'Reminders', 'Overview', 'Profile'];
+  //const tabs = ['Subjects', 'Reminders', 'Overview', 'Profile'];
+  const tabs = ['Subjects', 'Reminders', 'Overview', 'Questions', 'Profile'];
 
   useEffect(() => {
     document.body.classList.toggle('dark', dark);

@@ -3,6 +3,7 @@ import useAuthStore from './context/authStore';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard/Dashboard';
+import PublicProfile from './components/Subjects/PublicProfile';
 
 const PrivateRoute = ({ children }) => {
   const token = useAuthStore((s) => s.token);
@@ -14,6 +15,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/u/:userId" element={<PublicProfile />} />
       <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

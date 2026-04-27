@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import Navbar from './Navbar';
+import StreakCalendar from './StreakCalendar';
 import SubjectPanel from '../Subjects/SubjectPanel';
 import RemindersPanel from '../Reminders/RemindersPanel';
 import OverviewPanel from '../Overview/OverviewPanel';
+import QuestionsPanel from '../Questions/QuestionsPanel';
 import api from '../../api/axios';
 import useAuthStore from '../../context/authStore';
 
@@ -13,90 +15,92 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { user, fetchProfile } = useAuthStore();
 
-  useEffect(() => {
-    fetchProfile();
-    fetchAll();
-  }, []);
+  useEffect(() => { fetchProfile(); fetchAll(); }, []);
 
   const fetchAll = async () => {
     try {
       const [s, r] = await Promise.all([api.get('/subjects'), api.get('/reminders')]);
       setSubjects(s.data);
       setReminders(r.data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
   const totalTopics = subjects.reduce((a, s) => a + s.totalTopics, 0);
   const completedTopics = subjects.reduce((a, s) => a + s.completedTopics, 0);
   const overallPct = totalTopics ? Math.round((completedTopics / totalTopics) * 100) : 0;
-
-  const daysLeft = user?.targetDate
-    ? Math.max(0, Math.ceil((new Date(user.targetDate) - new Date()) / 86400000))
-    : null;
+  const daysLeft = user?.targetDate ? Math.max(0, Math.ceil((new Date(user.targetDate) - new Date()) / 86400000)) : null;
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '1.5rem' }}>
-        <div style={styles.statsRow}>
-          <div style={styles.greeting}>
-            <h2 style={{ fontSize: 18, fontWeight: 600 }}>Hey, {user?.name?.split(' ')[0]} 👋</h2>
-            <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' })}</p>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.5rem', display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+
+        {/* Main content */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={styles.statsRow}>
+            <div style={styles.greeting}>
+              <h2 style={{ fontSize: 18, fontWeight: 600 }}>Hey, {user?.name?.split(' ')[0]} 👋</h2>
+              <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' })}</p>
+            </div>
+            <div style={styles.metricCards}>
+              <MetricCard label="Progress" value={`${overallPct}%`} color="var(--accent)" />
+              <MetricCard label="Done" value={completedTopics} color="var(--success)" />
+              <MetricCard label="Left" value={totalTopics - completedTopics} color="var(--warning)" />
+              {user?.streak > 0 && <MetricCard label="Streak 🔥" value={user.streak} color="#e05c1a" />}
+              {daysLeft !== null && <MetricCard label="Days left" value={daysLeft} color="#993556" />}
+            </div>
           </div>
-          <div style={styles.metricCards}>
-            <MetricCard label="Overall progress" value={`${overallPct}%`} color="var(--accent)" />
-            <MetricCard label="Topics done" value={completedTopics} color="var(--success)" />
-            <MetricCard label="Remaining" value={totalTopics - completedTopics} color="var(--warning)" />
-            {user?.streak > 0 && (
-              <MetricCard label="Day streak 🔥" value={user.streak} color="#e05c1a" />
-            )}
-            {daysLeft !== null && (
-              <MetricCard label="Days to target" value={daysLeft} color="#993556" />
-            )}
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <div className="progress-bar" style={{ height: 8 }}>
+              <div className="progress-fill" style={{ width: `${overallPct}%`, background: 'var(--accent)' }} />
+            </div>
           </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>Loading...</div>
+          ) : (
+            <>
+              {activeTab === 'Subjects' && <SubjectPanel subjects={subjects} setSubjects={setSubjects} />}
+              {activeTab === 'Reminders' && <RemindersPanel reminders={reminders} setReminders={setReminders} />}
+              {activeTab === 'Overview' && <OverviewPanel subjects={subjects} reminders={reminders} />}
+              {activeTab === 'Questions' && <QuestionsPanel />}
+              {activeTab === 'Profile' && <ProfilePanel userId={user?._id} />}
+            </>
+          )}
         </div>
 
-        <div style={{ marginBottom: '1.5rem' }}>
-          <div className="progress-bar" style={{ height: 8 }}>
-            <div className="progress-fill" style={{ width: `${overallPct}%`, background: 'var(--accent)' }} />
-          </div>
+        {/* Right side panel — Streak Calendar */}
+        <div style={styles.sidePanel}>
+          <StreakCalendar />
         </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>Loading...</div>
-        ) : (
-          <>
-            {activeTab === 'Subjects' && <SubjectPanel subjects={subjects} setSubjects={setSubjects} />}
-            {activeTab === 'Reminders' && <RemindersPanel reminders={reminders} setReminders={setReminders} />}
-            {activeTab === 'Overview' && <OverviewPanel subjects={subjects} reminders={reminders} />}
-            {activeTab === 'Profile' && <ProfilePanel />}
-          </>
-        )}
       </div>
     </div>
   );
 }
 
-function ProfilePanel() {
+function ProfilePanel({ userId }) {
   const { user, updateProfile } = useAuthStore();
   const [name, setName] = useState(user?.name || '');
-  const [targetDate, setTargetDate] = useState(
-    user?.targetDate ? new Date(user.targetDate).toISOString().split('T')[0] : ''
-  );
+  const [targetDate, setTargetDate] = useState(user?.targetDate ? new Date(user.targetDate).toISOString().split('T')[0] : '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
 
-  const daysLeft = user?.targetDate
-    ? Math.max(0, Math.ceil((new Date(user.targetDate) - new Date()) / 86400000))
-    : null;
+  const daysLeft = user?.targetDate ? Math.max(0, Math.ceil((new Date(user.targetDate) - new Date()) / 86400000)) : null;
+  const profileUrl = `${window.location.origin}/u/${userId}`;
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(profileUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleSave = async () => {
     setError('');
@@ -107,7 +111,7 @@ function ProfilePanel() {
     const ok = await updateProfile(fields);
     setSaving(false);
     if (ok) { setSaved(true); setPassword(''); setConfirmPassword(''); setTimeout(() => setSaved(false), 2500); }
-    else setError('Failed to save. Try again.');
+    else setError('Failed to save.');
   };
 
   const streakMsg = () => {
@@ -129,6 +133,16 @@ function ProfilePanel() {
         </div>
         <div style={{ fontSize: 14, lineHeight: 1.5 }}>{streakMsg()}</div>
       </div>
+
+      <div style={{ background: 'var(--accent-light)', border: '1px solid var(--border)', borderRadius: 10, padding: '1rem 1.25rem', marginBottom: 20 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>🔗 Share your progress</div>
+        <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>Share this link with friends or recruiters!</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <input type="text" value={profileUrl} readOnly style={{ flex: 1, fontSize: 12, background: 'var(--surface)' }} />
+          <button className="btn btn-primary btn-sm" onClick={copyLink}>{copied ? 'Copied! ✓' : 'Copy link'}</button>
+        </div>
+      </div>
+
       {daysLeft !== null && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--accent-light)', border: '1px solid var(--border)', borderRadius: 10, padding: '1rem 1.25rem', marginBottom: 20 }}>
           <span style={{ fontSize: 20 }}>🎯</span>
@@ -138,6 +152,7 @@ function ProfilePanel() {
           </div>
         </div>
       )}
+
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '1.25rem' }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 14 }}>Account details</div>
         {error && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px 12px', borderRadius: 6, fontSize: 13, marginBottom: 12 }}>{error}</div>}
@@ -153,7 +168,6 @@ function ProfilePanel() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 14 }}>
           <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--muted)' }}>Placement target date</label>
           <input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} />
-          <span style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Used for the countdown on your dashboard</span>
         </div>
         <div style={{ height: 1, background: 'var(--border)', margin: '16px 0' }} />
         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 14 }}>Change password</div>
@@ -175,9 +189,9 @@ function ProfilePanel() {
 
 function MetricCard({ label, value, color }) {
   return (
-    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 16px', minWidth: 110 }}>
-      <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 600, color }}>{value}</div>
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 14px', minWidth: 80 }}>
+      <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 20, fontWeight: 600, color }}>{value}</div>
     </div>
   );
 }
@@ -185,5 +199,6 @@ function MetricCard({ label, value, color }) {
 const styles = {
   statsRow: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: '1rem' },
   greeting: { flex: 1 },
-  metricCards: { display: 'flex', gap: 10, flexWrap: 'wrap' },
+  metricCards: { display: 'flex', gap: 8, flexWrap: 'wrap' },
+  sidePanel: { width: 320, flexShrink: 0, position: 'sticky', top: 76 },
 };

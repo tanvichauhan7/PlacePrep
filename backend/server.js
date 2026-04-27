@@ -24,6 +24,8 @@ app.use('/api/subjects', require('./routes/subjects'));
 app.use('/api/topics', require('./routes/topics'));
 app.use('/api/reminders', require('./routes/reminders'));
 app.use('/api/profile', require('./routes/profile'));
+app.use('/api/questions', require('./routes/questions'));
+app.use('/api/leaderboard', require('./routes/leaderboard'));
 
 app.get('/', (req, res) => res.json({ message: 'Placement Prep API running' }));
 
