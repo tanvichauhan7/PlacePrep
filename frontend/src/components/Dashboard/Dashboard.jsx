@@ -3,10 +3,11 @@ import Navbar from './Navbar';
 import StreakCalendar from './StreakCalendar';
 import SubjectPanel from '../Subjects/SubjectPanel';
 import RemindersPanel from '../Reminders/RemindersPanel';
-import OverviewPanel from '../Overview/OverviewPanel';
+//import OverviewPanel from '../Overview/OverviewPanel';
 import QuestionsPanel from '../Questions/QuestionsPanel';
 import api from '../../api/axios';
 import useAuthStore from '../../context/authStore';
+import PomodoroTimer from '../Pomodoro/PomodoroTimer';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('Subjects');
@@ -66,7 +67,7 @@ export default function Dashboard() {
               {activeTab === 'Subjects' && <SubjectPanel subjects={subjects} setSubjects={setSubjects} />}
               {activeTab === 'Reminders' && <RemindersPanel reminders={reminders} setReminders={setReminders} />}
               {activeTab === 'Overview' && <OverviewPanel subjects={subjects} reminders={reminders} />}
-              {activeTab === 'Questions' && <QuestionsPanel />}
+              {activeTab === 'Timer' && <PomodoroTimer />}
               {activeTab === 'Profile' && <ProfilePanel userId={user?._id} />}
             </>
           )}
