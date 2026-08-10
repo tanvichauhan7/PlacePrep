@@ -49,10 +49,23 @@ router.post('/streak', protect, async (req, res) => {
     if (!isToday) {
       user.streak = isYesterday ? user.streak + 1 : 1;
       user.lastStudiedDate = new Date();
+      
+      // Update maxStreak
+      if (user.streak > (user.maxStreak || 0)) {
+        user.maxStreak = user.streak;
+      }
+      
+      // Add today to study log
+      const todayStr = today.toISOString().split('T')[0];
+      if (!user.studyLog) user.studyLog = [];
+      if (!user.studyLog.includes(todayStr)) {
+        user.studyLog.push(todayStr);
+      }
+      
       await user.save();
     }
 
-    res.json({ streak: user.streak, lastStudiedDate: user.lastStudiedDate });
+    res.json({ streak: user.streak, maxStreak: user.maxStreak, lastStudiedDate: user.lastStudiedDate });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

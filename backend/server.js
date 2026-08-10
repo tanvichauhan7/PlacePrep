@@ -77,6 +77,7 @@ app.use('/api/reminders', require('./routes/reminders'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
+app.use('/api/stats', require('./routes/stats'));
 
 // ====================
 // 404 Handler

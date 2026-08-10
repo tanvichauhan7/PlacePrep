@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true, minlength: 6 },
   targetDate: { type: Date, default: null },
   streak: { type: Number, default: 0 },
+  maxStreak: { type: Number, default: 0 },
   lastStudiedDate: { type: Date, default: null },
+  studyLog: { type: [String], default: [] }, // Array of date strings in YYYY-MM-DD format
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
